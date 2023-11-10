@@ -22,7 +22,7 @@ protected:
 	void import(Path &element) ;
 	void preview(Path &element) ;
 private:
-	T_SimpleList<Path> sampleList_ ;
+	I_Dir *sampleList_ ;
 	int currentSample_ ;
 	int topIndex_ ;
 	int toInstr_ ;

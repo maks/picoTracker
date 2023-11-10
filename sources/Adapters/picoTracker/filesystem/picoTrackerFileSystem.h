@@ -6,6 +6,8 @@
 #include <stdio.h>
 #include <string.h>
 
+#define PICO_MAX_FILENAME_LEN 128
+
 class picoTrackerFile : public I_File {
 public:
   picoTrackerFile(FsBaseFile file);
@@ -25,8 +27,15 @@ private:
 class picoTrackerDir : public I_Dir {
 public:
   picoTrackerDir(const char *path);
-  virtual ~picoTrackerDir(){};
-  virtual void GetContent(const char *mask);
+  ~picoTrackerDir() { Trace::Log("FILESYSTEM", "DESTRUCT pTDir:%s", path_); delete files_ ; } ;
+  void GetContent(const char *mask);
+	T_SimpleList<Path>* List() ;
+	void Add(Path *p);
+	void Clear();
+	void Sort();
+
+private:
+  T_SimpleList<Path> *files_;
 };
 
 class picoTrackerFileSystem : public FileSystem {
@@ -41,4 +50,15 @@ public:
 private:
   SdFs SD_;
 };
+
+class picoTrackerPath: public Path {
+public:
+  picoTrackerPath(int index) {
+    index_ = index;
+  }
+
+private:
+  int index_;
+};
+
 #endif

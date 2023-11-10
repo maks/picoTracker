@@ -79,7 +79,7 @@ void SamplePool::Load() {
 	// First, find all wav files
 
 	dir->GetContent("*.wav") ;
-	IteratorPtr<Path> it(dir->GetIterator()) ;
+	IteratorPtr<Path> it(dir->List()->GetIterator()) ;
 	count_=0 ;
 
 	for(it->Begin();!it->IsDone();it->Next()) {

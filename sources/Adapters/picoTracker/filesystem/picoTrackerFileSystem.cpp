@@ -3,12 +3,15 @@
 #include "Application/Utils/wildcard.h"
 #include "System/Console/Trace.h"
 
-picoTrackerDir::picoTrackerDir(const char *path) : I_Dir(path){};
+picoTrackerDir::picoTrackerDir(const char *path) : I_Dir(path){
+  Trace::Log("FILESYSTEM", "New ptDir %s", path);
+  files_ = new T_SimpleList<Path>();
+};
 
 void picoTrackerDir::GetContent(const char *mask) {
   Trace::Log("FILESYSTEM", "GetContent %s with mask %s", path_, mask);
-  Empty();
   FsBaseFile dir;
+
 
   if (!dir.open(path_)) {
     Trace::Error("Failed to open %s", path_);
@@ -24,14 +27,11 @@ void picoTrackerDir::GetContent(const char *mask) {
 
   FsBaseFile entry;
   while (entry.openNext(&dir, O_READ)) {
-    if (count == (PICO_MAX_FILE_COUNT + 1)) {
-      Path *fakePath = new Path("___.wav");
-      Insert(fakePath);
-      break;
-    }    
+   
     char current[PICO_MAX_FILENAME_LEN];
     entry.getName(current, PICO_MAX_FILENAME_LEN);
     char *c = current;
+    Trace::Log("FILESYSTEM", "current file: %s", current);
     while (*c) {
       *c = tolower(*c);
       c++;
@@ -39,22 +39,45 @@ void picoTrackerDir::GetContent(const char *mask) {
 
     if (wildcardfit(mask, current)) {
       entry.getName(current, PICO_MAX_FILENAME_LEN);
+      // TODO: can further improve ram usage on RP2040 by only using file dir indexes for paths
+      // Path *path = new picoTrackerPath(entry.dirIndex());
       std::string fullpath = path_;
-      if (path_[strlen(path_) - 1] != '/') {
-        fullpath += "/";
-      }
+      fullpath += "/";
       fullpath += current;
       Path *path = new Path(fullpath.c_str());
-      Insert(path);
+      Trace::Log("FILESYSTEM", "Insert path: %s", fullpath.c_str());
+    
+      Add(path);
     }
     count++;
   }
   // Insert a parent dir path given that FatFS doesn't provide it
   Path cur(this->path_);
   Path *parent = new Path(cur.GetParent().GetPath());
-  Insert(parent);
+  Add(parent);
+
   dir.close();
 }
+
+T_SimpleList<Path>* picoTrackerDir::List() {
+  Trace::Log("FILESYSTEM", "List size:%d", files_->Size());
+  return files_;
+}
+
+void picoTrackerDir::Add(Path *p) {
+  Trace::Log("FILESYSTEM", "Add %s", p->GetName().c_str());
+  return files_->Insert(p);
+}
+
+void picoTrackerDir::Clear() {
+  Trace::Log("FILESYSTEM", "CLEAR");
+  files_->Empty();
+}
+
+void picoTrackerDir::Sort() {
+  files_->Sort();
+}
+
 
 picoTrackerFile::picoTrackerFile(FsBaseFile file) { file_ = file; };
 

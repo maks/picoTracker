@@ -12,9 +12,6 @@
 
 #define MAX_FILENAME_SIZE 256
 
-// temporary limits due to limited ram on RP2040  
-#define PICO_MAX_FILENAME_LEN 32
-#define PICO_MAX_FILE_COUNT 25
 
 enum FileType {
 	FT_UNKNOWN,
@@ -33,7 +30,7 @@ public:
 
 	Path &operator=(const Path &other) ;
 
-  Path Descend(const std::string& leaf);
+	Path Descend(const std::string& leaf);
 
 	std::string GetPath() const;
 	std::string GetCanonicalPath() ;
@@ -90,15 +87,19 @@ public:
   virtual int Error()=0;
 } ;
 
-class I_Dir: public T_SimpleList<Path> {
+class I_Dir {
 public:
-	I_Dir(const char *path):T_SimpleList<Path>(true) {
+	I_Dir(const char *path) {
 		path_=(char *)SYS_MALLOC((int)strlen(path)+1) ;
 		strcpy(path_,path) ;
 	} ;
 	virtual ~I_Dir() { if (path_) free (path_) ; } ;
-	virtual void GetContent(const char *mask)=0 ;
-	void Compare(Path &p1,Path &p2) ;
+	virtual void GetContent(const char *mask) = 0;
+	virtual T_SimpleList<Path>* List() = 0;
+	virtual void Add(Path *p) = 0;
+	virtual void Clear() = 0;
+	virtual void Sort() = 0;
+
 protected:
    char *path_ ;
 } ;

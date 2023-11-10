@@ -24,12 +24,13 @@ ImportSampleDialog::ImportSampleDialog(View &view):ModalView(view) {
 		initStatic_=true ;
 	}
 	selected_=0 ;
-  
-  sampleList_.SetOwnership(true);
+
+	sampleList_ = FileSystem::GetInstance()->Open("/");
 }
 
 ImportSampleDialog::~ImportSampleDialog() {
-  sampleList_.Empty();
+  Trace::Log("IMPORTDIALOG", "DESTRUCT");
+  delete sampleList_;
 }
 
 void ImportSampleDialog::DrawView() {
@@ -59,13 +60,17 @@ void ImportSampleDialog::DrawView() {
 		topIndex_=currentSample_ ;
 	} ;
 
-	IteratorPtr<Path> it(sampleList_.GetIterator()) ;
+	T_SimpleList<Path> *paths = sampleList_->List();
+	IteratorPtr<Path> it = paths->GetIterator();
+	Trace::Log("IMPORTDIALOG", "GetIterator %d", paths->Size());
 	int count=0 ;
 	char buffer[64] ;
 	for(it->Begin();!it->IsDone();it->Next()) {
 		if ((count>=topIndex_)&&(count<topIndex_+LIST_SIZE)) {
 			Path &current=it->CurrentItem() ;
 			const std::string p=current.GetName() ;
+
+			Trace::Log("IMPORTDIALOG", "current:%s", p);
 
 			if (count==currentSample_) {
 				SetColor(CD_HILITE2) ;
@@ -81,12 +86,6 @@ void ImportSampleDialog::DrawView() {
 				strcpy(buffer+1,p.c_str()) ;
 				strcat(buffer,"]") ;
 			}
-		#ifdef PICO_BUILD 
-			// temporary UI to show temporary dir file count limit reached
-            if (count == (PICO_MAX_FILE_COUNT + 1)) {
-                strcpy(buffer, "[*MAX FILES LIMIT*]");
-            }
-		#endif
 			buffer[LIST_WIDTH-1]=0 ;
 			DrawString(x,y,buffer,props) ;
 			y+=1 ;
@@ -110,7 +109,7 @@ void ImportSampleDialog::DrawView() {
 void ImportSampleDialog::warpToNextSample(int direction) {
 
 	currentSample_+=direction ;
-	int size=sampleList_.Size() ;
+	int size=sampleList_->List()->Size() ;
 	if (currentSample_<0) currentSample_+=size ;
 	if (currentSample_>=size) currentSample_-=size ;
 	isDirty_=true ;
@@ -157,7 +156,7 @@ void ImportSampleDialog::ProcessButtonMask(unsigned short mask,bool pressed) {
 
 	  // A modifier
 	  if (mask&EPBM_A) { 
-		IteratorPtr<Path> it(sampleList_.GetIterator()) ;
+		IteratorPtr<Path> it(sampleList_->List()->GetIterator()) ;
 		int count=0 ;
 		Path *element=0 ;
 		for(it->Begin();!it->IsDone();it->Next()) {
@@ -216,48 +215,19 @@ void ImportSampleDialog::ProcessButtonMask(unsigned short mask,bool pressed) {
 }
 
 void ImportSampleDialog::setCurrentFolder(Path *path) {
-
+	Trace::Log("IMPORTDIALOG", "setCurrentFolder %s", path->GetPath().c_str());
 	Path formerPath(currentPath_) ;
 
 	topIndex_=0 ;
 	currentSample_=0 ;
 
 	currentPath_=Path(*path) ;
-  sampleList_.Empty();
-  if (path) {
-		int count=0 ;
-    std::unique_ptr<I_Dir> dir(FileSystem::GetInstance()->Open(path->GetPath().c_str())) ;	
-		if (dir) {
-			dir->GetContent("*") ;
-			dir->Sort() ;
-			IteratorPtr<Path>it(dir->GetIterator()) ;
-			for (it->Begin();!it->IsDone();it->Next()) {
-				Path &current=it->CurrentItem() ;
-		 		if (current.IsDirectory()) {
-					if (current.GetName().substr(0,1)!="." || current.GetName()=="..") {
-            printf("adding %s\n",
-                   current.GetName());
-            Path *sample = new Path(current);
-            sampleList_.Insert(sample);
-            if (!formerPath.Compare(current)) {
-              currentSample_ = count;
-						}
-						count++ ;
-					}
-				}
-			}
-			for (it->Begin();!it->IsDone();it->Next()) {
-				Path &current=it->CurrentItem() ;
-		 		if (!current.IsDirectory()) {
-					if (current.Matches("*.wav") && current.GetName()[0]!='.') {
-            printf("adding %s\n",
-                   current.GetName());
-
-            Path *sample = new Path(current);
-            sampleList_.Insert(sample);
-					}
-				};
-			}
-		}
+	sampleList_->Clear();
+	if (path) {
+		sampleList_ = FileSystem::GetInstance()->Open(path->GetPath().c_str());
+		// TODO: we don't filter only *.wav for now
+		sampleList_->GetContent("*");
+		sampleList_->Sort();
+		Trace::Log("IMPORTDIALOG", "After sort size:%d", sampleList_->List()->Size());
 	}
 }
