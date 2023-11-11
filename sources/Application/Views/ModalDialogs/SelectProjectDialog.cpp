@@ -288,9 +288,8 @@ void SelectProjectDialog::setCurrentFolder(Path &path) {
 		dir->GetContent("*");
 		dir->Sort();
 
-		// IteratorPtr<Path> it(dir->List().GetIterator()) ;
-		IteratorPtr<Path> it = dir->List()->GetIterator();
-		Trace::Log("SELECTPRJDIALOG", "GetIterator %d", dir->List()->Size());
+		IteratorPtr<Path> it(dir->ListRelative()->GetIterator()) ;
+		Trace::Log("SELECTPRJDIALOG", "GetIterator %d", dir->ListRelative()->Size());
 		for(it->Begin();!it->IsDone();it->Next())
 		{
 			Path &path=it->CurrentItem() ;

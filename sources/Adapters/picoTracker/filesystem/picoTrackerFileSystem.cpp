@@ -41,25 +41,25 @@ void picoTrackerDir::GetContent(const char *mask) {
       entry.getName(current, PICO_MAX_FILENAME_LEN);
       // TODO: can further improve ram usage on RP2040 by only using file dir indexes for paths
       // Path *path = new picoTrackerPath(entry.dirIndex());
-      std::string fullpath = path_;
-      fullpath += "/";
-      fullpath += current;
-      Path *path = new Path(fullpath.c_str());
-      Trace::Log("FILESYSTEM", "Insert path: %s", fullpath.c_str());
+      Path *path = new Path(current);
+      Trace::Log("FILESYSTEM", "Insert relative path: %s", current);
     
       Add(path);
     }
     count++;
   }
   // Insert a parent dir path given that FatFS doesn't provide it
-  Path cur(this->path_);
-  Path *parent = new Path(cur.GetParent().GetPath());
-  Add(parent);
+  // FIXME: have a flag to include parent dir instead of checking for *
+  if (strlen(mask) == 1) {
+    Path cur(this->path_);
+    Path *parent = new Path(cur.GetParent().GetPath());
+    Add(parent);
+  } 
 
   dir.close();
 }
 
-T_SimpleList<Path>* picoTrackerDir::List() {
+T_SimpleList<Path>* picoTrackerDir::ListRelative() {
   Trace::Log("FILESYSTEM", "List size:%d", files_->Size());
   return files_;
 }
@@ -130,6 +130,7 @@ picoTrackerFileSystem::picoTrackerFileSystem() {
 
   // Do we have any kind of card?
   if (!SD_.card() || SD_.sdErrorCode() != 0) {
+    // TODO: Need to show Error message to user in the UI
     Trace::Log("FILESYSTEM", "No SD Card present");
     return;
   }

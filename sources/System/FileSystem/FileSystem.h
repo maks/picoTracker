@@ -95,10 +95,18 @@ public:
 	} ;
 	virtual ~I_Dir() { if (path_) free (path_) ; } ;
 	virtual void GetContent(const char *mask) = 0;
-	virtual T_SimpleList<Path>* List() = 0;
+	virtual T_SimpleList<Path>* ListRelative() = 0;
 	virtual void Add(Path *p) = 0;
 	virtual void Clear() = 0;
 	virtual void Sort() = 0;
+	virtual Path fullPath(std::string relativePath) {
+		std::string fullPathString(path_);
+		if (path_[strlen(path_) - 1] != '/') {
+			fullPathString += "/";
+		}
+		fullPathString += relativePath.c_str();
+		return Path(fullPathString.c_str());
+	};
 
 protected:
    char *path_ ;

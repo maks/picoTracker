@@ -79,13 +79,15 @@ void SamplePool::Load() {
 	// First, find all wav files
 
 	dir->GetContent("*.wav") ;
-	IteratorPtr<Path> it(dir->List()->GetIterator()) ;
+	IteratorPtr<Path> it(dir->ListRelative()->GetIterator()) ;
 	count_=0 ;
 
 	for(it->Begin();!it->IsDone();it->Next()) {
-		Path &path=it->CurrentItem() ;
-//		Trace::Dump("Got sample name '%s'",name) ;
-		loadSample(path.GetPath().c_str()) ;
+		Path path = dir->fullPath(it->CurrentItem().GetName());
+		std::string pf("/");
+		pf += path.GetPath().c_str();
+		Trace::Log("SAMPLEPOOL", "Got sample path:%s", pf.c_str()) ;
+		loadSample(pf.c_str()) ;
 		if (count_==MAX_PIG_SAMPLES) {
 		   Trace::Error("Warning maximum sample count reached") ;
 		   break ;
@@ -144,8 +146,10 @@ bool SamplePool::loadSample(const char *path) {
 
 	Path sPath(path) ;
     Status::Set("Loading %s",sPath.GetName().c_str()) ;
+    Trace::Log("SAMPLEPOOL", "Loading %s",sPath.GetName().c_str()) ;
 
 	Path wavPath(path) ;
+	Trace::Log("SAMPLEPOOL", "Open wavpath: %s",wavPath.GetPath().c_str()) ;
 	WavFile *wave=WavFile::Open(path) ;
 	if (wave) {
 		wav_[count_]=wave ;
@@ -161,7 +165,7 @@ bool SamplePool::loadSample(const char *path) {
 		wave->Close() ;
 		return true ;
 	} else {
-		Trace::Error("Failed to load samples %s",wavPath.GetName().c_str()) ;
+		Trace::Error("Failed to load sample %s", wavPath.GetName().c_str()) ;
 		return false ;
  	}
 }

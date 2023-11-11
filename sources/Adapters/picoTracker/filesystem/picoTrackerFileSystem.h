@@ -29,7 +29,7 @@ public:
   picoTrackerDir(const char *path);
   ~picoTrackerDir() { Trace::Log("FILESYSTEM", "DESTRUCT pTDir:%s", path_); delete files_ ; } ;
   void GetContent(const char *mask);
-	T_SimpleList<Path>* List() ;
+	T_SimpleList<Path>* ListRelative() ;
 	void Add(Path *p);
 	void Clear();
 	void Sort();

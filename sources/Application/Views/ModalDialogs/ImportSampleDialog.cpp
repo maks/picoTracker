@@ -60,7 +60,7 @@ void ImportSampleDialog::DrawView() {
 		topIndex_=currentSample_ ;
 	} ;
 
-	T_SimpleList<Path> *paths = sampleList_->List();
+	T_SimpleList<Path> *paths = sampleList_->ListRelative();
 	IteratorPtr<Path> it = paths->GetIterator();
 	Trace::Log("IMPORTDIALOG", "GetIterator %d", paths->Size());
 	int count=0 ;
@@ -109,7 +109,7 @@ void ImportSampleDialog::DrawView() {
 void ImportSampleDialog::warpToNextSample(int direction) {
 
 	currentSample_+=direction ;
-	int size=sampleList_->List()->Size() ;
+	int size=sampleList_->ListRelative()->Size() ;
 	if (currentSample_<0) currentSample_+=size ;
 	if (currentSample_>=size) currentSample_-=size ;
 	isDirty_=true ;
@@ -129,9 +129,10 @@ void ImportSampleDialog::preview(Path &element) {
 }
 
 void ImportSampleDialog::import(Path &element) {
+	Path path = sampleList_->fullPath(element.GetName());
 
 	SamplePool *pool=SamplePool::GetInstance() ;
-	int sampleID=pool->ImportSample(element) ;
+	int sampleID=pool->ImportSample(path) ;
 	if (sampleID>=0) {
 		I_Instrument *instr=viewData_->project_->GetInstrumentBank()->GetInstrument(toInstr_) ;
 		if (instr->GetType()==IT_SAMPLE) {
@@ -156,7 +157,7 @@ void ImportSampleDialog::ProcessButtonMask(unsigned short mask,bool pressed) {
 
 	  // A modifier
 	  if (mask&EPBM_A) { 
-		IteratorPtr<Path> it(sampleList_->List()->GetIterator()) ;
+		IteratorPtr<Path> it(sampleList_->ListRelative()->GetIterator()) ;
 		int count=0 ;
 		Path *element=0 ;
 		for(it->Begin();!it->IsDone();it->Next()) {
@@ -225,9 +226,8 @@ void ImportSampleDialog::setCurrentFolder(Path *path) {
 	sampleList_->Clear();
 	if (path) {
 		sampleList_ = FileSystem::GetInstance()->Open(path->GetPath().c_str());
-		// TODO: we don't filter only *.wav for now
+		// TODO: we don't filter out everything except *.wav for now
 		sampleList_->GetContent("*");
 		sampleList_->Sort();
-		Trace::Log("IMPORTDIALOG", "After sort size:%d", sampleList_->List()->Size());
 	}
 }

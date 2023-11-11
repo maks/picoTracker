@@ -31,7 +31,7 @@ add_definitions(-DDISABLESF)
 # Enable loading samples into Flash
 add_definitions(-DLOAD_IN_FLASH)
 # Disable MIDI. Enable in order to use UART0 as stdio for debugging
-# add_definitions(-DDUMMY_MIDI)
+add_definitions(-DDUMMY_MIDI)
 # Disable feedback for sample instruments. Due to low memory in the PICO
 # there is very low chance to bring this back
 add_definitions(-DDISABLE_FEEDBACK)
