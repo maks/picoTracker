@@ -7,32 +7,30 @@
 #include <string>
 #include <vector>
 
-
-
 class PagedImportSampleDialog : public ModalView {
 public:
-	PagedImportSampleDialog(View &view) ;
-	virtual ~PagedImportSampleDialog() ;
+  PagedImportSampleDialog(View &view);
+  virtual ~PagedImportSampleDialog();
 
-	virtual void DrawView() ;
-	virtual void OnPlayerUpdate(PlayerEventType ,unsigned int currentTick) ;
-	virtual void OnFocus() ;
-	virtual void ProcessButtonMask(unsigned short mask,bool pressed) ;
+  virtual void DrawView();
+  virtual void OnPlayerUpdate(PlayerEventType, unsigned int currentTick);
+  virtual void OnFocus();
+  virtual void ProcessButtonMask(unsigned short mask, bool pressed);
 
 protected:
-	void setCurrentFolder(Path *path) ;
-	void warpToNextSample(int dir) ;
-	void import(Path &element) ;
-	void preview(Path &element) ;
+  void setCurrentFolder(Path *path);
+  void warpToNextSample(int dir);
+  void import(Path &element);
+  void preview(Path &element);
+
 private:
-	std::vector<FileListItem> fileList_ {};
-	int currentSample_ ;
-	int topIndex_ ;
-	int toInstr_ ;
-	int selected_ ;
-	Path currentPath_ { "/samplelib"};
-	I_PagedDir *currentDir_ {};
-} ;
+  std::vector<FileListItem> fileList_{};
+  int currentSample_;
+  int topIndex_;
+  int toInstr_;
+  int selected_;
+  Path currentPath_{"/samplelib"};
+  I_PagedDir *currentDir_{};
+};
 
 #endif
-

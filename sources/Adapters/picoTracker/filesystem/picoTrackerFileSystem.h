@@ -33,7 +33,9 @@ public:
 class picoTrackerPagedDir : public I_PagedDir {
 public:
   picoTrackerPagedDir(const char *path);
-  virtual ~picoTrackerPagedDir(){ Trace::Log("PAGEDDIR", "Destruct:%s", path_.c_str()); };
+  virtual ~picoTrackerPagedDir() {
+    Trace::Log("PAGEDDIR", "Destruct:%s", path_.c_str());
+  };
   void GetContent(const char *mask);
   std::string getFullName(int index);
   void getFileList(int startIndex, std::vector<FileListItem> *fileList);
@@ -41,8 +43,8 @@ public:
 
 private:
   const std::string path_;
-  std::vector<int> fileIndexes_ {};
-  std::vector<int> subdirIndexes_ {};
+  std::vector<int> fileIndexes_{};
+  std::vector<int> subdirIndexes_{};
 };
 
 class picoTrackerFileSystem : public FileSystem {
@@ -58,6 +60,5 @@ public:
 private:
   SdFs SD_;
 };
-
 
 #endif

@@ -5,16 +5,18 @@
 
 #include <string>
 
-// Max filename is actually 256 per FAT std 
+// Max filename is actually 256 per FAT std
 static const int MAX_FILENAME_LEN = 128;
 
-picoTrackerPagedDir::picoTrackerPagedDir(const char *path) : path_ { std::string(path) }{
+picoTrackerPagedDir::picoTrackerPagedDir(const char *path)
+    : path_{std::string(path)} {
   fileIndexes_.reserve(354);
   subdirIndexes_.reserve(96);
 };
 
 void picoTrackerPagedDir::GetContent(const char *mask) {
-  Trace::Log("PAGEDFILESYSTEM", "GetContent path:%s mask:%s", path_.c_str(), mask);
+  Trace::Log("PAGEDFILESYSTEM", "GetContent path:%s mask:%s", path_.c_str(),
+             mask);
   fileIndexes_.clear();
   subdirIndexes_.clear();
   FsBaseFile dir;
@@ -66,7 +68,8 @@ std::string picoTrackerPagedDir::getFullName(int index) {
   return std::string(filename);
 }
 
-void picoTrackerPagedDir::getFileList(int startOffset, std::vector<FileListItem> *fileList) {
+void picoTrackerPagedDir::getFileList(int startOffset,
+                                      std::vector<FileListItem> *fileList) {
   bool addedParentDirEntry = false;
   FsBaseFile dir;
 
@@ -82,39 +85,40 @@ void picoTrackerPagedDir::getFileList(int startOffset, std::vector<FileListItem>
   char current[MAX_FILENAME_LEN];
   FsBaseFile file;
 
-	if (startOffset == 0 && (path_ != std::string("/samplelib"))) {
-		// Insert a parent dir path given that FatFS doesn't provide it
-		fileList->push_back(FileListItem("..", 0, true));
+  if (startOffset == 0 && (path_ != std::string("/samplelib"))) {
+    // Insert a parent dir path given that FatFS doesn't provide it
+    fileList->push_back(FileListItem("..", 0, true));
     addedParentDirEntry = true;
-	}
+  }
 
   unsigned int count = startOffset;
-  for(; count < subdirIndexes_.size() && (fileList->size() < MAX_ITEMS); count++) {
+  for (; count < subdirIndexes_.size() && (fileList->size() < MAX_ITEMS);
+       count++) {
     int index = subdirIndexes_[count];
     if (!file.open(&dir, index, O_READ)) {
       Trace::Error("PAGEDFILESYSTEM Failed to getfile at Index %d", index);
     }
     file.getName(current, MAX_FILENAME_LEN);
-    current[23] = 0; //truncate at 22 char length string
+    current[23] = 0; // truncate at 22 char length string
     fileList->push_back(FileListItem(current, index, true));
   }
-  for(; count < fileIndexes_.size() && (fileList->size() < MAX_ITEMS); count++) {
+  for (; count < fileIndexes_.size() && (fileList->size() < MAX_ITEMS);
+       count++) {
     int index = fileIndexes_[count];
-    if (!file.open(&dir, index, O_READ)){
+    if (!file.open(&dir, index, O_READ)) {
       Trace::Error("PAGEDFILESYSTEM Failed to getfile at Index %d", index);
     }
     file.getName(current, MAX_FILENAME_LEN);
-    current[25] = 0; //truncate at 24 char length string
+    current[25] = 0; // truncate at 24 char length string
     fileList->push_back(FileListItem(current, index, false));
   }
 
   // +1 is for the synthezied Parent dir entry of ".."
-  fileCount_ = subdirIndexes_.size() + fileIndexes_.size() + (addedParentDirEntry ? 1 : 0);
+  fileCount_ = subdirIndexes_.size() + fileIndexes_.size() +
+               (addedParentDirEntry ? 1 : 0);
 }
 
-int picoTrackerPagedDir::size() {
-  return fileCount_;
-}
+int picoTrackerPagedDir::size() { return fileCount_; }
 
 picoTrackerDir::picoTrackerDir(const char *path) : I_Dir(path){};
 
@@ -286,6 +290,5 @@ FileType picoTrackerFileSystem::GetFileType(const char *path) {
 };
 
 I_PagedDir *picoTrackerFileSystem::OpenPaged(const char *path) {
-  return new picoTrackerPagedDir { path };
+  return new picoTrackerPagedDir{path};
 }
-
