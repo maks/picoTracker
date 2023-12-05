@@ -7,14 +7,12 @@
 #define LIST_SIZE 15
 #define LIST_WIDTH 24
 
-const static char *sampleLib_ = "/samplelib";
-
 static const char *buttonText[3] = {"Listen", "Import", "Exit"};
 
 PagedImportSampleDialog::PagedImportSampleDialog(View &view) : ModalView(view) {
   selected_ = 0;
   fileList_.reserve(15);
-  Trace::Log("PAGEDIMPORT", "samplelib is:%s", sampleLib_);
+  Trace::Log("PAGEDIMPORT", "samplelib is:%s", SAMPLE_LIB_PATH);
 }
 
 PagedImportSampleDialog::~PagedImportSampleDialog() {
@@ -184,7 +182,7 @@ void PagedImportSampleDialog::ProcessButtonMask(unsigned short mask,
 
       if ((selected_ != 2) && currentItem.isDirectory) {
         if (currentItem.name == std::string("..")) {
-          if (currentPath_.GetPath() == std::string(sampleLib_)) {
+          if (currentPath_.GetPath() == std::string(SAMPLE_LIB_PATH)) {
             Trace::Log("PAGEDIMPORT",
                        "already at root of samplelib nothing to do");
           } else {

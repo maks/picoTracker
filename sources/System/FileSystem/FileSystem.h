@@ -13,6 +13,7 @@
 
 #define MAX_FILENAME_SIZE 256
 
+#define SAMPLE_LIB_PATH "/samplelib"
 
 enum FileType {
 	FT_UNKNOWN,

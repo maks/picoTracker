@@ -26,10 +26,10 @@ protected:
 private:
   std::vector<FileListItem> fileList_{};
   int currentSample_;
-  int topIndex_;
+  int topIndex_ = 0;
   int toInstr_;
   int selected_;
-  Path currentPath_{"/samplelib"};
+  Path currentPath_{SAMPLE_LIB_PATH};
   I_PagedDir *currentDir_{};
 };
 

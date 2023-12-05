@@ -275,7 +275,6 @@ void InstrumentView::ProcessButtonMask(unsigned short mask,bool pressed) {
                 DoModal(mb) ;
               } else { ;
                 // Go to import sample
-                // ImportSampleDialog *isd=new ImportSampleDialog(*this) ;
                 PagedImportSampleDialog *isd = new PagedImportSampleDialog(*this) ;
                 DoModal(isd) ;
               }

@@ -281,26 +281,22 @@ void SelectProjectDialog::setCurrentFolder(Path &path) {
 
 	I_Dir *dir=FileSystem::GetInstance()->Open(currentPath_.GetPath().c_str()) ;
 
-	if (dir) 
-	{
-		// Get all lgpt something
-		dir->GetContent("*");
-		// dir->Sort();
-		IteratorPtr<Path> it(dir->GetIterator()) ;
-		for(it->Begin();!it->IsDone();it->Next())
-		{
-			Path &path=it->CurrentItem() ;
-			if (path.IsDirectory())
-			{
-				std::string name=path.GetName() ;
-				if (name[0] != '.' || name[1]== '.')
-				{
-					Path *p=new Path(path) ;
-					content_.Insert(p) ;
-				}
-			}
-		}
-		delete (dir) ;
+  if (dir) {
+    // Get all lgpt something
+    dir->GetContent("*");
+    dir->Sort();
+        IteratorPtr<Path> it(dir->GetIterator());
+        for (it->Begin(); !it->IsDone(); it->Next()) {
+          Path &path = it->CurrentItem();
+          if (path.IsDirectory()) {
+            std::string name = path.GetName();
+            if (name[0] != '.' || name[1] == '.') {
+              Path *p = new Path(path);
+              content_.Insert(p);
+            }
+          }
+        }
+      delete (dir) ;
 	}
 	//reset & redraw screen
 	topIndex_=0 ;

@@ -85,7 +85,7 @@ void picoTrackerPagedDir::getFileList(int startOffset,
   char current[MAX_FILENAME_LEN];
   FsBaseFile file;
 
-  if (startOffset == 0 && (path_ != std::string("/samplelib"))) {
+  if (startOffset == 0 && (path_ != std::string(SAMPLE_LIB_PATH))) {
     // Insert a parent dir path given that FatFS doesn't provide it
     fileList->push_back(FileListItem("..", 0, true));
     addedParentDirEntry = true;
