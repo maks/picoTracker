@@ -10,6 +10,10 @@ static const int MAX_FILENAME_LEN = 128;
 
 picoTrackerPagedDir::picoTrackerPagedDir(const char *path)
     : path_{std::string(path)} {
+  // Initial size allocation for file and subdir entries per each dir
+  // these act as "soft limits" since while the Vector objects will allocate
+  // more room if the initially allocated space is used up, this will likely 
+  // exhaust available RAM per my testing as of making this change
   fileIndexes_.reserve(354);
   subdirIndexes_.reserve(96);
 };
